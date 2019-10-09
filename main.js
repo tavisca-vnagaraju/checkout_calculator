@@ -1,73 +1,90 @@
-var calculateString = '';
-var flag = 0;
-
-var calculator = createCalculator();
-render(calculator);
-
-var calculator2 = createCalculator();
-render(calculator);
-
-
-function render(element){
-    addElement("root",element.html);
-}
-function addElement(id,element){
-    var app_root = document.getElementById(id);
-    app_root.insertAdjacentHTML("beforeend",element);
-}
-function remove(id){
-    var element = document.getElementById(id);
-    element.innerHTML = '';
-}
-function getCalculateString(button){
-    var display = button.parentElement.parentElement.parentElement.parentElement.previousSibling;
-    if(button.value == '='){
-        calculate(calculateString,display);
-        calculateString='';
-        flag=1;
-    }else{
-        if(flag==1){
-            display.innerHTML = '';
-            flag=0;
+var Calculator = function (){
+    var buttons = [
+        {"value":7,"onClick":numberClicked},
+        {"value":8,"onClick":numberClicked},
+        {"value":9,"onClick":numberClicked},
+        {"value":"/","onClick":operatorClicked},
+        {"value":4,"onClick":numberClicked},
+        {"value":5,"onClick":numberClicked},
+        {"value":6,"onClick":numberClicked},
+        {"value":"-","onClick":operatorClicked},
+        {"value":1,"onClick":numberClicked},
+        {"value":2,"onClick":numberClicked},
+        {"value":3,"onClick":numberClicked},
+        {"value":"+","onClick":operatorClicked},
+        {"value":0,"onClick":numberClicked},
+        {"value":".","onClick":numberClicked},
+        {"value":"=","onClick":operatorClicked},
+        {"value":"*","onClick":operatorClicked},
+    ]
+    var operations = {
+        "+":function (a,b){
+            return a+b;
+        },
+        "-":function (a,b){
+            return a-b;
+        },
+        "*":function (a,b){
+            return a*b;
+        },
+        "/":function (a,b){
+            return a/b;
         }
-        calculateString += button.value;
-        display.insertAdjacentHTML("beforeend",button.value);
     }
-}
+    var root  = document.getElementById("root");
+    var display = document.createElement("div");
+    var buttonDisplay = document.createElement("div");
+    let leftNumber = '';
+    let rightNumber = '';
+    let operator = '';
+    let answer = '';
+    function numberClicked(event){
+        if(answer != ''){
+            display.innerHTML = '';
+            answer = '';
+        }
+        if(operator == ''){
+            leftNumber += event.target.value;
+            display.appendChild(document.createTextNode(event.target.value));
+        }
+        else if(operator != '' && operator != '='){
+            rightNumber += event.target.value;
+            display.appendChild(document.createTextNode(event.target.value));
+        }
+        
+    }
+    function operatorClicked(event){
+        if(event.target.value != '='){
+            operator = event.target.value;
+            display.appendChild(document.createTextNode(event.target.value));
+        }
+        if(event.target.value == '='){
+            calculate(operator,leftNumber,rightNumber);
+            leftNumber = '';
+            rightNumber = '';
+            operator = '';
+        }
+    }
+    function calculate(operator,leftNumber,rightNumber){
+        answer = operations[operator](parseFloat(leftNumber),parseFloat(rightNumber));
+        display.innerHTML = answer;
+    }
+    function prepareUI(){
+        display.classList.add("display");
+        buttonDisplay.classList.add("flex-container");
 
-function calculate(operation,display){
-    var answer = eval(operation);
-    display.innerHTML = answer;
-}
-function createCalculator(){
-    var displayHtml = '<div class="display" id="display"></div>';
-    var calculatorHtml = '<table>\
-    <tr>\
-        <td><input onclick="getCalculateString(this)" type="button" value="7"></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="8"></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="9"></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="/"></td>\
-    </tr>\
-    <tr>\
-        <td><input onclick="getCalculateString(this)" type="button" value="4"></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="5"></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="6"></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="-"></td>\
-    </tr>\
-    <tr>\
-        <td><input onclick="getCalculateString(this)" type="button" value="1"></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="2"></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="3"></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="+"></td>\
-    </tr>\
-    <tr>\
-        <td><input onclick="getCalculateString(this)" type="button" value="0"></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="."></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="="></td>\
-        <td><input onclick="getCalculateString(this)" type="button" value="*"></td>\
-    </tr>\
-</table>';
-    return {
-        "html":displayHtml+calculatorHtml
-    };
+        for (let index = 0; index < buttons.length; index++) {
+            var button = document.createElement("input");
+            button.classList.add("flex-item");
+            button.classList.add("button");
+            button.setAttribute("type","button");
+            button.setAttribute("value",buttons[index].value);
+            button.addEventListener("click",buttons[index].onClick);
+            button.innerHTML = buttons[index].value;
+            buttonDisplay.appendChild(button);
+        }
+        root.appendChild(display);
+        root.appendChild(buttonDisplay);
+    }
+    return prepareUI;
 }
