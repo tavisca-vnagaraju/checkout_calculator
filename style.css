@@ -1,5 +1,16 @@
 .display{
     background-color: #dcdcdc;
-    height: 30px;
-    width: 20%;
+    height: 40px;
+    width: 100%;
+}
+.flex-container{
+    display: flex;
+    flex-wrap: wrap;
+}
+.flex-item{
+    flex-basis: 25%;
+    height: 50%;
+}
+.button{
+    padding: 10px;
 }
